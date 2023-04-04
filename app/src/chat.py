@@ -78,6 +78,7 @@ def generate_conversation(position: int, verses: List, saint: str) -> str:
 
     except Exception as e:
         # Handle the exception appropriately
-        raise ValueError(f"Failed to generate conversation: {e}")
+        st.error(ValueError(f"Failed to generate conversation: {e}"))
+        st.stop()
 
     return generated_text
