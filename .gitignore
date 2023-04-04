@@ -1,0 +1,5 @@
+.streamlit/secrets.toml
+.ipynb_checkpoints
+watch*
+__pycache__
+.mypy_cache
