@@ -6,7 +6,7 @@ from typing import List
 
 from src.saints import Saint
 
-
+@st.cache_data
 def conversation(verses: List, saint: Saint) -> str:
 
     if not verses or all(not verse for verse in verses):
@@ -30,7 +30,7 @@ def conversation(verses: List, saint: Saint) -> str:
     # prevents None being displayed
     return ""
 
-
+@st.cache_data
 def generate_conversation(position: int, verses: List, saint: str) -> str:
 
     gospel = verses[0]
