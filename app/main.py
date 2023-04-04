@@ -73,7 +73,7 @@ def run():
         [word of the day](https://www.vaticannews.va/en/word-of-the-day.html).
         Additionally contains information about the 
         [Saint(s)](https://www.vaticannews.va/en/saints.html) of the day. Each tab
-        represents that information for the date (UTC+1), with the final one representing the 
+        represents that information for the date (UTC+1), with the default representing the 
         spot for the generated conversation. ¹ I primarily made this for my own usage
         and to learn more about AI prompting 'characters'. ² It should be used as a 
         catalyst to think about the word of day, and for this reason it's limited to text
