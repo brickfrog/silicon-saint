@@ -94,7 +94,7 @@ def run():
     openai.api_key = api_key
 
     # Horizontal line to divide the footnotes
-    st.markdown("<hr>", unsafe_allow_html=True)
+    st.divider()
 
     dt = st.date_input(
         "This allows you to select previous dates if so inclined:", datetime.today()
@@ -176,7 +176,7 @@ def run():
                     )
                     st.write("")
 
-    st.markdown("<hr>", unsafe_allow_html=True)
+    st.divider()
 
     with st.expander("Data Input"):
         st.write("These are the data inputs for the conversational model:")
@@ -184,7 +184,7 @@ def run():
         st.write(selected_saint)
 
     # Horizontal line to divide the footnotes
-    st.markdown("<hr>", unsafe_allow_html=True)
+    st.divider()
 
     st.caption(
         """
