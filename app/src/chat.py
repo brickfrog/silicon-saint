@@ -6,62 +6,92 @@ from typing import List
 
 from src.saints import Saint
 
-@st.cache_data
-def conversation(verses: List, saint: Saint) -> str:
+def conversation_ui(verses: List, saint: Saint) -> str:
 
     if not verses or all(not verse for verse in verses):
         raise ValueError("Input list cannot be empty or contain only empty strings.")
+    
+    gospel_verses = verses[:1] + verses[-1:]
 
-    for position, verse in enumerate(verses):
+    for position, verse in enumerate(gospel_verses):
+        col1, col2 = st.columns([1, 5])
 
-        col1, col2 = st.columns([1, 3])
 
         with col1:
-            st.image(saint.picture),
-            width = (125,)
-            caption = f"{saint.name}"
+            if position == 0:
+                st.image(saint.picture, width = 100, caption = f"{saint.name}")
 
         with col2:
-            with st.expander(f"{saint.name}", expanded=True):
-                with st.spinner("Generating dialogue..."):
-                    st.write(generate_conversation(position, verses, saint))
+            header_string = f"{saint.name} on '{gospel_verses[0]}' with accompanying words frrom the Pope"
+            
+            if position == 0:
+                st.write(header_string)
 
-        time.sleep(3)
+            with st.expander(f"...", expanded=True):
+                with st.spinner("Generating dialogue..."):
+                    st.write(conversation(position, verses, saint, "gospel"))
+
+        time.sleep(2)
+    else:
+        reading_verses = verses[1:-1]
+        col1, col2 = st.columns([1, 5])
+
+        with col1:
+            st.image(saint.picture, width = 100, caption = f"{saint.name}")
+        with col2:
+            if len(reading_verses) == 1:
+                header_string = f"{saint.name} on '{reading_verses[0]}'"
+            else:
+                header_string = f"{saint.name} on " + " and ".join([f"'{s}'" for s in reading_verses[:-1]]) + f", and '{reading_verses[-1]}'"
+            st.write(header_string)
+            with st.expander(f"...", expanded=True):
+                with st.spinner("Generating dialogue..."):
+                    st.write(conversation(position, reading_verses, saint, "reading"))
+
     # prevents None being displayed
     return ""
 
 @st.cache_data
-def generate_conversation(position: int, verses: List, saint: str) -> str:
-
-    gospel = verses[0]
+def conversation(position: int, verses: List, saint: str, topic_chosen: str) -> str:
 
     # Crux of text, the verse / gospel
-    if position == 0:
-        verse_input = f"Explain {gospel} in your own words."
-        writing_input = f"Tie contemporary events in relation to your life to the verse, offering quotes from your writings."
+    if topic_chosen == "gospel" and position == 0:
+        intro_input = "Introduction to post."
+        verse_input = f"Explain {verses[0]} in your own words."
+        ending_input = "This is the first half a response, do not treat this as a complete thought."
     else:
-        verse_input = f"Explain {verses[position]} in your own words. How does it relate to {gospel}. Expand on the common themes."
-        writing_input = ""
+        intro_input = ""
+        verse_input = f"Explain {verses} in your own words."
+        ending_input = ""
+
+    writing_input = f"Tie contemporary events in relation to your life to the verse, offering quotes from your writings."
 
     # These are the main two inputs into the OpenAI model
+    # The first half, the system content, which 'primes' the proceeding prompt.
     system_content = f"""
-        You are {saint.name}. Talk in the first person.
-        Use these traits to influence your style, do not mention directly: {saint.traits}.
+        You are {saint.name}. Write your thoughts as if  you were penning a longform blog post in
+        the style of the New Yorker.
         """
 
+    # The second half of the prompt, the input
     user_content = f"""
         Use the following structure, separate each section with a newline:
         
+        {intro_input}
         {verse_input}
         {writing_input}
+        {ending_input}
         """
 
     # Adding a prayer at the end
-    if position == len(verses) - 1:
+    if position == len(verses) - 1 and topic_chosen == "gospel":
         user_content = f"""
+        This is the final section of a longform blog post.
+
         Offer the thoughts of yourself in character on the words of the Pope: {verses[position]}
-        Ponder on the significance of these words for the future and offer guidance 
-        and a prayer for the reader
+        Ponder on the significance of these words for the future.
+        Give something for the reader to think about during their day.
+        Finally, offer a prayer for the reader
         """
 
     try:
@@ -71,7 +101,7 @@ def generate_conversation(position: int, verses: List, saint: str) -> str:
                 {"role": "system", "content": system_content},
                 {"role": "user", "content": user_content},
             ],
-            temperature=0.7,
+            temperature=0.65,
         )
 
         generated_text = response["choices"][0]["message"]["content"]

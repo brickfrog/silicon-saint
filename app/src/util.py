@@ -3,7 +3,24 @@ from bs4 import BeautifulSoup
 from bs4.element import Tag
 import requests
 from typing import List
+from urllib.parse import urlparse
 
+class URL:
+    def __init__(self, url: str):
+        self.url = url
+        self.parsed_url = urlparse(url)
+
+    def __str__(self):
+        return self.url
+
+    def __repr__(self):
+        return f"URL('{self.url}')"
+
+    def __eq__(self, other):
+        return isinstance(other, URL) and self.url == other.url
+
+    def __hash__(self):
+        return hash(self.url)
 
 @st.cache_data
 def scrape_vatican_word(date: str) -> List:

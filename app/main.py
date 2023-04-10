@@ -5,7 +5,7 @@ from PIL import Image
 
 from datetime import datetime, timedelta
 
-from src.chat import conversation
+from src.chat import conversation_ui
 from src.saints import dorothy, augustine, aquinas
 from src.util import (
     scrape_vatican_word,
@@ -15,7 +15,6 @@ from src.util import (
 )
 
 LOGGER = get_logger(__name__)
-
 
 def run():
 
@@ -119,6 +118,7 @@ def run():
         ["**AI Dialogue**", "Reading", "Gospel", "Holy Father's Words", "Saint(s)"]
     )
 
+    # AI Dialogue
     with tab1:
         st.markdown(
             """
@@ -135,22 +135,49 @@ def run():
         )
 
         selected_saint = gpt_saints[names.index(option)]
+        st.write("")
+
+        icol4, icol5 = st.columns([1, 5])
+
+        with icol4:
+            st.image(selected_saint.picture, width=100)
+
+        with icol5:
+            st.markdown(f"[{selected_saint.name}]({selected_saint.wiki})" + " was " + selected_saint.traits)
+
+        st.divider()
+
+        input_dialogue_flag = 0
 
         if st.button("Generate"):
-            conversation(verses, selected_saint)
+            conversation_ui(verses, selected_saint)
+            input_dialogue_flag = 1
 
+        if input_dialogue_flag == 0:
+            st.divider()
+
+            with st.expander("Data Input"):
+                st.write("These are the data inputs for the conversational model:")
+                st.write(verses)
+                st.write(selected_saint)
+                    
+
+    # Reading
     with tab2:
         st.markdown(reading, unsafe_allow_html=True)
         st.write("")
 
+    # Gospel
     with tab3:
         st.markdown(gospel, unsafe_allow_html=True)
         st.write("")
 
+    # Word of the day
     with tab4:
         st.markdown(word, unsafe_allow_html=True)
         st.write("")
 
+    # Saint(s) of the day
     with tab5:
         st.write("Information about the Saint(s) of the day, using Wikipedia iframes:")
         st.caption(
@@ -175,13 +202,6 @@ def run():
                         unsafe_allow_html=True,
                     )
                     st.write("")
-
-    st.divider()
-
-    with st.expander("Data Input"):
-        st.write("These are the data inputs for the conversational model:")
-        st.write(verses)
-        st.write(selected_saint)
 
     # Horizontal line to divide the footnotes
     st.divider()
