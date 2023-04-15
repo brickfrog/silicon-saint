@@ -118,6 +118,8 @@ def run():
         ["**AI Dialogue**", "**AI Prayer Idea**", "Vatican Daily Readings", " Daily Saint(s)"]
     )
 
+    language_list = ["English", "French", "German", "Italian", "Latin", "Polish", "Portuguese", "Spanish"]
+    
     # AI Dialogue
     with tab1:
         st.markdown(
@@ -125,6 +127,12 @@ def run():
             This is the main part of the application, select from the dropdown and click generate. 
             The other tabs contain the input text readings for your convenience.
             """
+        )
+
+        dialogue_language = st.selectbox(
+            label="Select a Language for the Dialogue",
+            options=language_list,
+            help="This is the language that the model will return.",
         )
 
         names = [saint.name for saint in gpt_saints]
@@ -150,7 +158,7 @@ def run():
         input_dialogue_flag = 0
 
         if st.button("Generate"):
-            conversation_ui(verses, selected_saint)
+            conversation_ui(verses, selected_saint, dialogue_language)
             input_dialogue_flag = 1
 
         if input_dialogue_flag == 0:
@@ -163,11 +171,18 @@ def run():
 
     # Prayer Request
     with tab2:
+
+        prayer_language = st.selectbox(
+            label="Select a Language for the Prayer",
+            options=language_list,
+            help="This is the language that the model will return.",
+        )
+
         st.write("Enter a prayer request and click generate to get a prayer idea.")
         prayer_input = st.text_input("Prayer Topic (Enter to confirm):", "I've lost an important document")
 
         if st.button("Prayer"):
-            st.write(prayer(prayer_input))
+            st.write(prayer(prayer_input, prayer_language))
     # Reading
     with tab3:
         st.markdown(reading, unsafe_allow_html=True)

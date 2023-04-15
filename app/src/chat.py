@@ -6,7 +6,7 @@ from typing import List
 
 from src.saints import Saint
 
-def conversation_ui(verses: List, saint: Saint) -> str:
+def conversation_ui(verses: List, saint: Saint, language: str) -> str:
 
     if not verses or all(not verse for verse in verses):
         raise ValueError("Input list cannot be empty or contain only empty strings.")
@@ -29,7 +29,7 @@ def conversation_ui(verses: List, saint: Saint) -> str:
 
             with st.expander(f"...", expanded=True):
                 with st.spinner("Generating dialogue..."):
-                    st.write(conversation(position, verses, saint, "gospel"))
+                    st.write(conversation(position, verses, saint, language, "gospel"))
 
         time.sleep(2)
     else:
@@ -46,13 +46,13 @@ def conversation_ui(verses: List, saint: Saint) -> str:
             st.write(header_string)
             with st.expander(f"...", expanded=True):
                 with st.spinner("Generating dialogue..."):
-                    st.write(conversation(position, reading_verses, saint, "reading"))
+                    st.write(conversation(position, reading_verses, saint, language, "reading"))
 
     # prevents None being displayed
     return ""
 
 @st.cache_data
-def conversation(position: int, verses: List, saint: str, topic_chosen: str) -> str:
+def conversation(position: int, verses: List, saint: str, language: str, topic_chosen: str) -> str:
 
     # Crux of text, the verse / gospel
     if topic_chosen == "gospel" and position == 0:
@@ -69,8 +69,8 @@ def conversation(position: int, verses: List, saint: str, topic_chosen: str) -> 
     # These are the main two inputs into the OpenAI model
     # The first half, the system content, which 'primes' the proceeding prompt.
     system_content = f"""
-        You are {saint.name}. Write your thoughts as if  you were penning a longform blog post in
-        the style of the New Yorker.
+        You are {saint.name}. Write your thoughts as if  you were penning a longform blog 
+        post in {language} in the style of the New Yorker.
         """
 
     # The second half of the prompt, the input
@@ -114,17 +114,21 @@ def conversation(position: int, verses: List, saint: str, topic_chosen: str) -> 
     return generated_text
 
 @st.cache_data
-def prayer(input_text: str):
+def prayer(input_text: str, language: 'English') -> str:
 
     if len(input_text) > 150:
         raise ValueError("Input text should be less than 150 characters.")
 
     system_content = f"""
-    You are a knowledgable Catholic theologian well versed in the Saints. 
-    You are asked to write a prayer on a specific topic, try to find a Saint 
-    to call for help that relates to the topic. If the topic does not feel 
-    like a valid topic for a prayer, instead of a prayer, ask for the reader 
-    to reformulate their text.
+    You are an extremely knowledgeable theologian, known for their moving and eloquent 
+    writing. 
+    You are asked to write a prayer for the topic in {language}, calling for 
+    an intercession from a saint that is most relevant for the topic. 
+
+    Make your prayer verbose and emotional.
+
+    Ask for reformulation if the topic is inappropriate, an example of inappropriate
+    would be sexual or illegal topics.
     """
 
     try:
