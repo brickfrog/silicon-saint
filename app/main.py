@@ -5,7 +5,7 @@ from PIL import Image
 
 from datetime import datetime, timedelta
 
-from src.chat import conversation_ui
+from src.chat import conversation_ui, prayer
 from src.saints import dorothy, augustine, aquinas
 from src.util import (
     scrape_vatican_word,
@@ -114,8 +114,8 @@ def run():
 
     gpt_saints = [augustine, dorothy, aquinas]
 
-    tab1, tab2, tab3, tab4, tab5 = st.tabs(
-        ["**AI Dialogue**", "Reading", "Gospel", "Holy Father's Words", "Saint(s)"]
+    tab1, tab2, tab3, tab4 = st.tabs(
+        ["**AI Dialogue**", "**AI Prayer Idea**", "Vatican Daily Readings", " Daily Saint(s)"]
     )
 
     # AI Dialogue
@@ -160,25 +160,24 @@ def run():
                 st.write("These are the data inputs for the conversational model:")
                 st.write(verses)
                 st.write(selected_saint)
-                    
 
-    # Reading
+    # Prayer Request
     with tab2:
+        st.write("Enter a prayer request and click generate to get a prayer idea.")
+        prayer_input = st.text_input("Prayer Topic (Enter to confirm):", "I've lost an important document")
+
+        if st.button("Prayer"):
+            st.write(prayer(prayer_input))
+    # Reading
+    with tab3:
         st.markdown(reading, unsafe_allow_html=True)
         st.write("")
-
-    # Gospel
-    with tab3:
         st.markdown(gospel, unsafe_allow_html=True)
         st.write("")
-
-    # Word of the day
-    with tab4:
         st.markdown(word, unsafe_allow_html=True)
-        st.write("")
 
     # Saint(s) of the day
-    with tab5:
+    with tab4:
         st.write("Information about the Saint(s) of the day, using Wikipedia iframes:")
         st.caption(
             """

@@ -112,3 +112,36 @@ def conversation(position: int, verses: List, saint: str, topic_chosen: str) -> 
         st.stop()
 
     return generated_text
+
+@st.cache_data
+def prayer(input_text: str):
+
+    if len(input_text) > 150:
+        raise ValueError("Input text should be less than 150 characters.")
+
+    system_content = f"""
+    You are a knowledgable Catholic theologian well versed in the Saints. 
+    You are asked to write a prayer on a specific topic, try to find a Saint 
+    to call for help that relates to the topic. If the topic does not feel 
+    like a valid topic for a prayer, instead of a prayer, ask for the reader 
+    to reformulate their text.
+    """
+
+    try:
+        response = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "system", "content": system_content},
+                {"role": "user", "content": f"The topic is: '{input_text}'"},
+            ],
+            temperature=0.65,
+        )
+
+        generated_text = response["choices"][0]["message"]["content"]
+
+    except Exception as e:
+        # Handle the exception appropriately
+        st.error(ValueError(f"Failed to generate conversation: {e}"))
+        st.stop()
+
+    return generated_text
